@@ -1,0 +1,324 @@
+
+SQL Questions and Answers Part - 4
+1) Display the details of THOSE WHO are drawing the same
+salary.
+select name, salary from programmer where salary = any(select
+salary from programmer p group by salary having
+salary=p.salary and count(*)>1);
+2) Display the details of software developed by male
+programmers earing MORE than 3000.
+select software.* from programmer p,software s where
+p.name=s.name and salary>3000 and sex='m';
+3) Display details of packages developed in PASCAL by female
+programmers.
+select s.* from programmer p,software s where p.name=s.name
+and sex='f' and dev_in='pascal';
+4) Display the details of these programmer WHO joined BEFORE
+1990.
+      select * from programmer where to_char(doj,'yy')<90;
+    
+5)Display details of software developed in C by female
+programmers of PRAGATHI.
+select s.* from software s,studies st,programmer p where
+s.name=st.name and p.name=s.name and sex='f' and
+splace='pragathi';
+6) Display NUMBER of packages NUMBER of copies sold and sales
+value of EACH
+   programmer Institute-wise.
+Select studies.splace, count(software.dev_in),
+count(software.sold), sum(software.sold*software.scost) from
+software,studies where software.name=studies.name group by
+studies.splace;
+7) Display details of software developed in DBASE by male
+programmers WHO belong to
+   the institute on which MOST NUMBER OF programmers studies.
+select software.* from programmer,software,studies where
+programmer.name=software.name and software.name=studies.name
+and programmer.name=studies.name and sex='m' and
+dev_in='dbase' and splace= (select splace from studies group
+by splace having count(splace) =(select max(count(splace))from
+studies group by splace));
+8) Display the details of the software that was developed by
+male programmers born BEFORE 1965 and female programmers born
+AFTER 1975.
+ 
+    
+select software.* from programmer p,software s where
+s.name=p.name and sex='m' and to_char(dob,'yy')<64 or sex='f'
+and To_char(dob,'yy')>75);
+9) Display the details of the software that was developed in
+the language that is NOT the programmers first proficiency.
+      select distinct x.* from software x, programmer y where
+y.prof1 <> x.dev_in and x.name = y.name;
+10) Display details of software that was developed in the
+language which is NITHER first NOR second proficiency of the
+programmer.
+select s.* from programmer p,software s where s.name=p.name
+and (dev_in <> prof1 and dev_in <> prof2);
+11) Display details of software developed by male students of
+SABHARI.
+select s.* from programmer p,software s,studies st where
+p.name=s.name and s.name=st.name and sex='m' and
+splace='sabhari';
+12) Display the names of programmers WHO HAVE NOT developed
+any package.
+  
+   
+      select name from programmer where name not in(select
+name from software);
+13) What is the total cost of the software developed by the
+programmers by APPLE?
+select sum(scost) from software s,studies st where
+s.name=st.name and splace='apple';
+14) Who are the programmers WHO JOINED in the same day?
+select a.name,a.doj from programmer a,programmer b where
+a.doj=b.doj and a.name <> b.name;
+15) Who are the programmers WHO HAVE THE SAME PROF2?
+select name from programmer where prof2 = any(select prof2
+from programmer group by prof2 having count(*) >1);
+16) Display the total sales values of software,
+institutes-wise.
+select studies.splace,sum(software.sold*software.scost) from
+software,studies where studies.name=software.name group by
+studies.splace;
+17) In which institutes did the person who developed the
+COSTLIEST package study?
+ 
+    
+select splace from software st,studies s where s.name=st.name
+group by splace,dcost having max(dcost)=(select max(dcost)
+from software);
+18) Which language listed in prof1 and prof2 HAS NOT BEEN used
+to develop any package?
+select prof1 from programmer where prof1 not in(select dev_in
+from software) union select prof2 from programmer where prof2
+not in(select dev_in from software);
+19) How much does the person WHO developed the HIGHEST selling
+package earn and WHAT
+course did he/she undergo?
+select p1.salary,s2.course from programmer p1,software
+s1,studies s2 where p1.name=s1.name and s1.name=s2.name and
+scost=(select max(scost) from software);
+20) How many months will it take for each programmer to
+recover the cost of the course underwent?
+select p.name,ceil(ccost/salary) from programmer p,studies s
+where s.name=p.name;
+21) Which is the COSTLIEST package developed by a person with
+under 3 years expenence?
+  
+   
+select x.title from software x, programmer y where
+(months_between(sysdate, y.doj)/12) > 3 and x.name=y.name;
+22) What is the AVERAGE salary for those WHOSE software's
+sales value is more than 50,000?
+select avg(salary) from programmer p,software s where p
+.name=s.name and sold*scost>50000;
+23) How many packages were developed by the students WHO
+studied in the institute that Charge the LOWEST course fee?
+select count(s.name) from software s,studies st where
+s.name=st.name group by s.name,ccost having min(ccost)=(select
+min(ccost) from studies);
+24) How many packages were developed by the person WHO
+developed the CHEAPEST
+package. Where did he\she study?
+select count(*) from programmer p,software s where s
+.name=p.name group by dev_in having min(dcost)=(select
+min(dcost) from software);
+  
+   
+25) How many packages were developed by female programmers
+earning MORE than the
+HIGHEST paid male programmer?
+select count(dev_in) from programmer p,software s where
+s.name=p.name and sex='f' and salary>(select max(salary) from
+programmer p,software s where s.name=p.name and sex='m');
+26) How many packages were developed by the MOST experienced
+programmers from BDPS.
+select count(x.name) from software x, programmer y, studies x where months_between(sysdate, y.doj)/12) = (select
+max(months_between(sysdate,y.doj)/12) from programmer y, studies = where x.splace = 'BDPS' and y.name = z.name) and x.name=y.name andz.splace='BDPS';
+27) List the programmers (from software table) and institutes
+they studied, including those WHO DIDN'T develop any package.
+      select name,splace from studies where name not in(select
+name from software);
+28) List each profit with the number of programmers having
+that prof1 and the number of packages developed in that prof1.
+select count(*),sum(scost*sold-dcost) "PROFIT" from software
+where dev_in in (select prof1 from programmer) group by
+dev_in;
+ 
+   
+29) List programmer names (from programmer table) and number
+of packages EACH developed.
+select s.name,count(dev_in) from programmer p1,software s
+where p1.name=s.name group by s.name;
+30) List all the details of programmers who has done a course
+at S.S.I.L.
+select programmer.* from programmer,studies where
+splace='SSIL' and programmer.name=software.name and
+programmer.name=studies.name and studies.splace='s.s.i.l.';
+
+  
+SQL Questions and Answers Part - 3
+1) Who is the highest paid C programmer?
+SELECT * FROM PROGRAMMER WHERE SALARY=(SELECT MAX(SALARY) FROM PROGRAMMER WHERE PROF1 LIKE 'C' OR PROF2 LIKE 'C');
+2) Who is the highest paid female cobol programmer?
+SELECT * FROM PROGRAMMER WHERE SALARY=(SELECT MAX(SALARY) FROM PROGRAMMER WHERE (PROF1 LIKE 'COBOL' OR PROF2 LIKE 'COBOL')) AND SEX LIKE 'F';
+3) Display the name of the HIGEST paid programmer for EACH language (prof1)
+SELECT DISTINCT NAME, SALARY, PROF1 FROM PROGRAMMER WHERE (SALARY,PROF1) IN (SELECT MAX(SALARY),PROF1 FROM PROGRAMMER GROUP BY PROF1);
+4) Who is the LEAST experienced programmer?
+SELECT FLOOR((SYSDATE-DOJ)/365) EXP,NAME FROM PROGRAMMER WHERE FLOOR((SYSDATE-DOJ)/365) = (SELECT MIN(FLOOR((SYSDATE-DOJ)/365)) FROM PROGRAMMER);
+5) Who is the MOST experienced programmer?
+ 
+    
+SELECT FLOOR((SYSDATE-DOJ)/365) EXP,NAME,PROF1,PROF2 FROM PROGRAMMER WHERE FLOOR((SYSDATE-DOJ)/365) = (SELECT MAX(FLOOR((SYSDATE-DOJ)/365)) FROM PROGRAMMER) AND (PROF1 LIKE 'COBOL' OR PROF2 LIKE 'COBOL');
+6) Which language is known by ONLY ONE programmer?
+SELECT PROF1 FROM PROGRAMMER GROUP BY PROF1 HAVING PROF1 NOT IN (SELECT PROF2 FROM PROGRAMMER) AND COUNT(PROF1)=1 UNION SELECT PROF2 FROM PROGRAMMER GROUP BY PROF2 HAVING PROF2 NOT IN (SELECT PROF1 FROM PROGRAMMER) AND COUNT(PROF2)=1;
+7) Who is the YONGEST programmer knowing DBASE?
+SELECT FLOOR((SYSDATE-DOB)/365) AGE, NAME, PROF1, PROF2 FROM PROGRAMMER WHERE FLOOR((SYSDATE-DOB)/365) = (SELECT MIN(FLOOR((SYSDATE-DOB)/365)) FROM PROGRAMMER WHERE PROF1 LIKE 'DBASE' OR PROF2 LIKE 'DBASE');
+8) Which institute has MOST NUMBER of students?
+SELECT SPLACE FROM STUDIES GROUP BY SPLACE HAVING COUNT(SPLACE)= (SELECT MAX(COUNT(SPLACE)) FROM STUDIES GROUP BY SPLACE);
+9) Which female programmer earns MORE than 3000/- but DOES NOT know C, C++, Oracle or Dbase?
+SELECT * FROM PROGRAMMER WHERE SEX = 'F' AND SALARY >3000 AND (PROF1 NOT IN('C','C++','ORACLE','DBASE') OR PROF2 NOT IN('C','C++','ORACLE','DBASE'));
+ 
+    
+10) Which is the COSTLIEST course?
+SELECT COURSE FROM STUDIES WHERE CCOST = (SELECT MAX(CCOST) FROM STUDIES);
+11) Which course has been done by MOST of the students?
+SELECT COURSE FROM STUDIES GROUP BY COURSE HAVING COUNT(COURSE)= (SELECT MAX(COUNT(COURSE)) FROM STUDIES GROUP BY COURSE);
+12) Display name of the institute and course Which has below AVERAGE course fee?
+SELECT SPLACE,COURSE FROM STUDIES WHERE CCOST < (SELECT AVG(CCOST) FROM STUDIES);
+13) Which institute conducts COSTLIEST course?
+SELECT SPLACE FROM STUDIES WHERE CCOST = (SELECT MAX(CCOST) FROM STUDIES);
+14) Which course has below AVERAGE number of students?
+SELECT COURSE FROM STUDIES GROUP BY COURSE HAVING COUNT(NAME)<(SELECT AVG(COUNT(NAME)) FROM STUDIES GROUP BY COURSE) ;
+  
+    
+15) Which institute conducts the above course?
+SELECT SPLACE FROM STUDIES WHERE COURSE IN (SELECT COURSE FROM STUDIES GROUP BY COURSE HAVING COUNT(NAME) < (SELECT AVG(COUNT(NAME)) FROM STUDIES GROUP BY COURSE));
+16) Display names of the course WHOSE fees are within 1000(+ or -) of the AVERAGE fee.
+SELECT COURSE FROM STUDIES WHERE CCOST < (SELECT AVG(CCOST)+1000 FROM STUDIES) AND CCOST > (SELECT AVG(CCOST)-1000 FROM STUDIES);
+17) Which package has the HIGEST development cost?
+SELECT TITLE,DCOST FROM SOFTWARE WHERE DCOST = (SELECT MAX(DCOST) FROM SOFTWARE);
+18) Which package has the LOWEST selling cost?
+SELECT TITLE,SCOST FROM SOFTWARE WHERE SCOST = (SELECT MIN(SCOST) FROM SOFTWARE);
+19) Who developed the package, which has sold the LEAST number of copies?
+SELECT NAME,SOLD FROM SOFTWARE WHERE SOLD = (SELECT MIN(SOLD) FROM SOFTWARE);
+ 
+   
+20) Which language was used to develop the package WHICH has the HIGEST sales amount?
+SELECT DEV_IN,SCOST FROM SOFTWARE WHERE SCOST = (SELECT MAX(SCOST) FROM SOFTWARE);
+21) How many copies of the package that has the LEAST DIFFRENCE between development and selling cost were sold?
+SELECT SOLD,TITLE FROM SOFTWARE WHERE TITLE = (SELECT TITLE FROM SOFTWARE WHERE (DCOST-SCOST)=(SELECT MIN(DCOST-SCOST) FROM SOFTWARE);
+22) Which is the COSTLIEAST package developed in PASCAL?
+SELECT TITLE FROM SOFTWARE WHERE DCOST = (SELECT MAX(DCOST) FROM SOFTWARE WHERE DEV_IN LIKE 'PASCAL');
+23) Which language was used to develop the MOST NUMBER of package?
+SELECT DEV_IN FROM SOFTWARE GROUP BY DEV_IN HAVING MAX(DEV_IN) = (SELECT MAX(DEV_IN) FROM SOFTWARE);
+24) Which programmer has developed the HIGEST NUMBER of package?
+SELECT NAME FROM SOFTWARE GROUP BY NAME HAVING MAX(NAME) = (SELECT MAX(NAME) FROM SOFTWARE);
+  
+  
+25) Who is the author of the COSTLIEST package?
+SELECT NAME,DCOST FROM SOFTWARE WHERE DCOST = (SELECT
+MAX(DCOST) FROM
+26) Display names AVERAGE number of
+SELECT TITLE FROM SOFTWARE);
+SOFTWARE);
+of packages WHICH have been sold LESS THAN the copies?
+SOFTWARE WHERE SOLD < (SELECT AVG(SOLD) FROM
+27) Who are the female programmers earning MORE than the HIGEST paid male programmers?
+SELECT NAME FROM PROGRAMMER WHERE SEX = 'F' AND SALARY > (SELECT(MAX(SALARY)) FROM PROGRAMMER WHERE SEX = 'M');
+28) Which language has been stated as prof1 by MOST of the programmers?
+SELECT PROF1 FROM PROGRAMMER GROUP BY PROF1 HAVING PROF1 = (SELECT MAX(PROF1) FROM PROGRAMMER);
+29) Who are the authors of packages, WHICH have recovered MORE THAN double the development cost?
+SELECT NAME FROM SOFTWARE WHERE SOLD*SCOST > 2*DCOST;
+30) Display programmer names and CHEAPEST package developed by them in EACH
+  
+   
+language?
+SELECT NAME,TITLE FROM SOFTWARE WHERE DCOST IN (SELECT MIN(DCOST) FROM SOFTWARE GROUP BY DEV_IN);
+31) Who is the YOUNGEST male programmer born in 1965?
+SELECT NAME FROM PROGRAMMER WHERE DOB=(SELECT (MAX(DOB)) FROM PROGRAMMER WHERE TO_CHAR(DOB,'YYYY') LIKE '1965');
+32) Display language used by EACH programmer to develop the HIGEST selling and LOWEST selling package.
+SELECT NAME, DEV_IN FROM SOFTWARE WHERE SOLD IN (SELECT MAX(SOLD) FROM SOFTWARE GROUP BY NAME) UNION SELECT NAME, DEV_IN FROM SOFTWARE WHERE SOLD IN (SELECT MIN(SOLD) FROM SOFTWARE GROUP BY NAME);
+33) Who is the OLDEST female programmer WHO joined in 1992?
+SELECT NAME FROM PROGRAMMER WHERE DOJ=(SELECT (MIN(DOJ)) FROM PROGRAMMER WHERE TO_CHAR(DOJ,'YYYY') LIKE '1992');
+34) In WHICH year where the MOST NUMBER of programmer born?
+SELECT DISTINCT TO_CHAR(DOB,'YYYY') FROM PROGRAMMER WHERE TO_CHAR(DOJ,'YYYY') = (SELECT MIN(TO_CHAR(DOJ,'YYYY')) FROM PROGRAMMER);
+35) In WHICH month did MOST NUMBRER of programmer join?
+ 
+   
+SELECT DISTINCT TO_CHAR(DOJ,'MONTH') FROM PROGRAMMER WHERE TO_CHAR(DOJ,'MON') = (SELECT MIN(TO_CHAR(DOJ,'MON')) FROM PROGRAMMER);
+36) In WHICH language are MOST of the programmer's proficient?
+SELECT PROF1 FROM PROGRAMMER GROUP BY PROF1 HAVING COUNT(PROF1)=(SELECT MAX(COUNT(PROF1)) FROM PROGRAMMER GROUP BY PROF1) OR COUNT(PROF2)=(SELECT MAX(COUNT(PROF2)) FROM PROGRAMMER GROUP BY PROF2)
+UNION
+SELECT PROF2 FROM PROGRAMMER GROUP BY PROF2 HAVING COUNT(PROF1)=(SELECT MAX(COUNT(PROF1)) FROM PROGRAMMER PROF1) OR COUNT(PROF2)=(SELECT MAX(COUNT(PROF2)) FROM PROGRAMMERGROUP BY PROF2);
+GROUP BY
+37) Who are the male programmers earning BELOW the AVERAGE salary of female
+programmers?
+SELECT NAME FROM PROGRAMMER WHERE SEX = 'M' AND SALARY < (SELECT(AVG(SALARY))FROM PROGRAMMER WHERE SEX = 'F');
+
+ 
+DBMS QUERY SET-2
+1) Display THE NUMBER OF packages developed in EACH language.
+SELECT DEV_IN LANGUAGE,COUNT(TITLE) NO_of_PACK FROM SOFTWARE GROUP BY DEV_IN;
+2) Display THE NUMBER OF packages developed by EACH person.
+SELECT NAME,COUNT(TITLE) No_of_Pack FROM SOFTWARE GROUP BY NAME;
+3) Display THE NUMBER OF male and female programmers. SELECT SEX,COUNT(NAME) FROM PROGRAMMER GROUP BY SEX;
+4) Display THE COSTLIEST packages and HIGEST selling developed in EACH language.
+SELECT DEV_IN,MAX(SCOST),MAX(SOLD) FROM SOFTWARE GROUP BY DEV_IN; 5) Display THE NUMBER OF people BORN in EACH YEAR.
+SELECT TO_CHAR(DOB,'YY') AS YEAR,COUNT(NAME) FROM PROGRAMMER GROUP BY TO_CHAR(DOB,'YY');
+6) Display THE NUMBER OF people JOINED in EACH YEAR.
+SELECT TO_CHAR(DOJ,'YY') AS YEAR,COUNT(NAME) FROM PROGRAMMER GROUP BY TO_CHAR(DOJ,'YY');
+7) Display THE NUMBER OF people BORN in EACH MONTH.
+  
+ 
+ SELECT SUBSTR(DOB,4,3),COUNT(NAME) FROM PROGRAMMER GROUP BY SUBSTR(DOB,4,3);
+8) Display THE NUMBER OF people JOINED in EACH MONTH.
+SELECT SUBSTR(DOJ,4,3),COUNT(NAME) FROM PROGRAMMER GROUP BY SUBSTR(DOJ,4,3);
+9) Display the language wise COUNTS of prof1.
+SELECT PROF1, COUNT(PROF1) FROM PROGRAMMER GROUP BY PROF1;
+10) Display the language wise COUNTS of prof2.
+SELECT PROF2, COUNT(PROF2) FROM PROGRAMMER GROUP BY PROF2;
+11) Display THE NUMBER OF people in EACH salary group.
+SELECT SALARY,COUNT(NAME) FROM PROGRAMMER GROUP BY SALARY;
+12) Display THE NUMBER OF people who studied in EACH institute. SELECT SPLACE,COUNT(NAME) FROM STUDIES GROUP BY SPLACE;
+13) Display THE NUMBER OF people who studied in EACH course. SELECT COURSE ,COUNT(NAME) FROM STUDIES GROUP BY COURSE;
+14) Display the TOTAL development COST of the packages developed in EACH language.
+SELECT DEV_IN LANG,SUM(DCOST) TOTAL_COST FROM SOFTWARE GROUP BY DEV_IN; 15) Display the selling cost of the package developed in EACH language.
+ 2
+
+
+ SELECT DEV_IN ,SUM(SCOST) FROM SOFTWAREGROUP BY DEV_IN; 16) Display the cost of the package developed by EACH programmer.
+SELECT NAME,SUM(DCOST) AS TOTAL_COST FROM SOFTWARE GROUP BY NAME; 17) Display the sales values of the package developed in EACH programmer.
+SELECT NAME, SUM(SCOST*SOLD) FROM SOFTWARE GROUP BY NAME; 18) Display the NUMBER of packages developed by EACH programmer.
+SELECT NAME,COUNT(TITLE) AS TOTAL_PACK FROM SOFTWARE GROUP BY NAME;
+19) Display the sales COST of packages developed by EACH programmer language wise.
+SELECT DEV_IN, SUM(SCOST) FROM SOFTWARE GROUP BY DEV_IN;
+20) Display EACH programmers name,costliest package,cheapest packages developed by His/Her?
+SELECT NAME,MIN(DCOST),MAX(DCOST) FROM SOFTWARE GROUP BY NAME;
+21) Display EACH language name with AVERAGE development cost, AVERAGE cost, selling
+cost and AVERAGE price per copy.
+SELECT DEV_IN,AVG(DCOST),AVG(SCOST),AVG(SCOST) FROM SOFTWARE GROUP BY DEV_IN;
+22) Display EACH institute name with NUMBER of courses, AVERAGE cost per course.
+ 3
+
+
+ SELECT SPLACE,COUNT(COURSE), AVG(CCOST) FROM STUDIES GROUP BY SPLACE; 23) Display EACH institute name with NUMBER of students.
+SELECT SPLACE,COUNT(NAME) FROM STUDIES GROUP BY SPLACE; 24) Display names of male and female programmers.
+SELECT NAME,SEX FROM PROGRAMMER ORDER BY SEX; 25) Display the programmer's name and their packages.
+SELECT NAME,TITLE FROM SOFTWARE ORDER BY NAME; 26) Display the NUMBER of packages in EACH language.
+SELECT COUNT(TITLE),DEV_IN FROM SOFTWARE GROUP BY DEV_IN;
+27) Display the NUMBER of packages in EACH language for which development cost is less than
+1000.
+SELECT COUNT(TITLE),DEV_IN FROM SOFTWARE WHERE DCOST<1000 GROUP BY DEV_IN;
+28) Display the AVERAGE difference BETWEEN scost and dcost for EACH language.
+SELECT DEV_IN,AVG(DCOST - SCOST) FROM SOFTWARE GROUP BY DEV_IN;
+29) Display the TOTAL scost, dcsot and amount TOBE recovered for EACH programmer for
+whose dcost HAS NOT YET BEEN recovered.
+SELECT SUM(SCOST), SUM(DCOST), SUM(DCOST-(SOLD*SCOST)) FROM SOFTWARE GROUP BY NAME
+HAVING SUM(DCOST)>SUM(SOLD*SCOST);
+ 4
+
+
+ 30) Display highest, lowest and average salaries for THOSE earning MORE than 2000.
+SELECT MAX(SALARY), MIN(SALARY), AVG(SALARY) FROM PROGRAMMER WHERE SALARY > 2000;
